@@ -5,6 +5,7 @@ import numpy as np, os, copy, math
 from AB3DMOT_libs.box import Box3D
 from AB3DMOT_libs.matching import data_association
 from AB3DMOT_libs.kalman_filter import KF
+from AB3DMOT_libs.voe_filter import Voe
 from AB3DMOT_libs.vis import vis_obj
 from xinshuo_miscellaneous import print_log
 from xinshuo_io import mkdir_if_missing
@@ -277,7 +278,8 @@ class AB3DMOT(object):
 		# dets = copy.copy(dets)
 		new_id_list = list()					# new ID generated for unmatched detections
 		for i in unmatched_dets:        			# a scalar of index
-			trk = KF(Box3D.bbox2array(dets[i]), info[i, :], self.ID_count[0])
+			trk = Voe(Box3D.bbox2array(dets[i]), info[i, :], self.ID_count[0])
+			# trk = Voe(Box3D.bbox2array(dets[i]), info[i, :], self.ID_count[0])
 			self.trackers.append(trk)
 			new_id_list.append(trk.id)
 			# print('track ID %s has been initialized due to new detection' % trk.id)
