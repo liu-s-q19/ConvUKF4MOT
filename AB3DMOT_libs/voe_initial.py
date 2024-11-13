@@ -20,8 +20,9 @@ from AB3DMOT_libs.modeling.voe import Voe_mlp as VoeMlp
 from AB3DMOT_libs.utils_voe import Args
 import jax.numpy as jnp
 
-path = r'AB3DMOT_libs/logs/2023-07-08_15-52-53'
-
+# path = r'AB3DMOT_libs/logs/2023-08-12_11-52-00'
+# path = r'AB3DMOT_libs/logs/2023-07-08_15-52-53'
+path = r'AB3DMOT_libs/logs/2023-10-08_20-30-14'
 with open(path + r'/my_parm.pkl', 'rb') as f:
     params = pickle.load(f)
 # _params = jax.device_put(params)
@@ -30,7 +31,8 @@ config_path = path + '/config.json'
 with open(config_path, 'r') as f1:
     args = Args.from_json(f1.read())
     
-args = args
+# args = args
+
 
 class VoeFilter(object):
 
@@ -155,14 +157,14 @@ class VoeFilter(object):
         # P = FPF' + Q
         self.P = self._alpha_sq * dot(dot(F, self.P), F.T) + Q
 
-        self.state = self.x_prior.copy()
+        self.state = self.x.copy()
         
         # save prior
         self.x_prior = self.x.copy()
         self.P_prior = self.P.copy()
 
 
-    def update(self, z, R=None, H=None):
+    def update(self, z, x_com, R=None, H=None):
         """
         Add a new measurement (z) to the Kalman filter.
 
@@ -224,17 +226,30 @@ class VoeFilter(object):
         # # x = x + Ky
         # # predict new x with residual scaled by the kalman gain
         # self.x = self.x + dot(self.K, self.y)
-        state = self.state.T
-        state_ = self.x.copy().T
-        obs = z.T
-        state_obs = jnp.concatenate([state, state_, obs], axis=-1)
+        state = x_com                   #shape(10,1)
+        # state_ = self.x.copy().T
+        state_ = jnp.array(np.dot(self.F, state))
+        obs = z
 
+        state_obs = jnp.concatenate([state.T, state_.T, obs.T], axis=-1)    #shape(1,10)
+        
+        # _state = jnp.array(np.dot(np.linalg.inv(self.F), state))
+        # obs = z
+
+        # state_obs = jnp.concatenate([_state.T, state.T, obs.T], axis=-1)    #shape(1,10)
+        state_obs = state_obs.reshape(27,)
         q_w = self.forward.apply(params=self.parm, rng=self.rng_key, x=(state_obs))
-        mu, logvar = jnp.split(q_w, 2, axis=-1)
-        # noise = rsample(mu, logvar)
-        # state_next = state_ + noise
-        state_for_test = state_ + mu
-        self.x = np.array(state_for_test.T)
+        mu, logvar = jnp.split(q_w, 2, axis=-1)       #shape(1,10)\
+        # mu, logvar = jnp.split(q_w[0:20], 2, axis=-1)
+        # q_K = q_w[20:].reshape((10, 7))
+        # print('voe_K:\n',q_K)
+        mu = mu.reshape((10,1))
+        state_for_test = state_ + mu          #shape(10,1)
+        # print(state_for_test.shape)
+        # print('afert update\n', state_for_test)
+        # err = obs - self.H @ state_
+        # state_for_test = state_ + q_K @ err
+        self.x = np.array(state_for_test)
         
         # P = (I-KH)P(I-KH)' + KRK'
         # This is more numerically stable
@@ -243,7 +258,11 @@ class VoeFilter(object):
 
         I_KH = self._I - dot(self.K, H)
         self.P = dot(dot(I_KH, self.P), I_KH.T) + dot(dot(self.K, R), self.K.T)
-
+        # print("+++++++++\n",logvar.shape)
+        # print('---------\n',np.diag(np.exp(logvar[0])))
+        # print('P:\n',self.P)
+        self.P = np.diag(np.exp(logvar)).copy()
+        # print('P:\n',self.P)
         # save measurement and posterior state
         self.z = deepcopy(z)
         self.x_post = self.x.copy()

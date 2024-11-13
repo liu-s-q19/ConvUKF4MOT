@@ -1,0 +1,18 @@
+{
+  "exp_name": "2023-10-07_22-09-45",
+  "hidden_size": 512,
+  "rnn_depth": 4,
+  "decoder_depth": 2,
+  "rnn_activation": true,
+  "dim_state": 10,
+  "dim_obs": 7,
+  "lr": 5e-05,
+  "params_factor": 0.001,
+  "max_epoch": 500,
+  "batch_size": 64,
+  "beta": 1.0,
+  "beta_kl": 1.0,
+  "lr_schedule": false,
+  "seed": 42,
+  "log_root": "logs"
+}

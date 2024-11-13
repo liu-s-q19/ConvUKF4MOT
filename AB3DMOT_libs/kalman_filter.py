@@ -1,6 +1,10 @@
 import numpy as np
-from filterpy.kalman import KalmanFilter, UnscentedKalmanFilter, MerweScaledSigmaPoints
-
+from filterpy.kalman import KalmanFilter
+# from AB3DMOT_libs.ukf import UnscentedKF
+# from AB3DMOT_libs.ekf import ExtendedKF 
+# import jax
+# import jax.numpy as jnp
+ 
 class Filter(object):
 	def __init__(self, bbox3D, info, ID):
 
@@ -10,11 +14,58 @@ class Filter(object):
 		self.hits = 1           		# number of total hits including the first detection
 		self.info = info        		# other information associated	
 
+# def fx(states, dt):
+#     F =np.array([[1,0,0,0,0,0,0,dt,0,0],      # state transition matrix, dim_x * dim_x
+# 				[0,1,0,0,0,0,0,0,dt,0],
+# 				[0,0,1,0,0,0,0,0,0,dt],
+# 				[0,0,0,1,0,0,0,0,0,0],  
+# 				[0,0,0,0,1,0,0,0,0,0],
+# 				[0,0,0,0,0,1,0,0,0,0],
+# 				[0,0,0,0,0,0,1,0,0,0],
+# 				[0,0,0,0,0,0,0,1,0,0],
+# 				[0,0,0,0,0,0,0,0,1,0],
+# 				[0,0,0,0,0,0,0,0,0,1]]) 
+#     return np.array(F @ states) 
+
+# def hx(states):
+#     H =   np.array([[1,0,0,0,0,0,0,0,0,0],      
+# 					[0,1,0,0,0,0,0,0,0,0],
+# 					[0,0,1,0,0,0,0,0,0,0],
+# 					[0,0,0,1,0,0,0,0,0,0],
+# 					[0,0,0,0,1,0,0,0,0,0],
+# 					[0,0,0,0,0,1,0,0,0,0],
+# 					[0,0,0,0,0,0,1,0,0,0]])
+#     return np.array(H @ states)
+
+# point = MerweScaledSigmaPoints(10, alpha=0.1, beta=2.0, kappa=1.0)
+# ukf = UnscentedKalmanFilter(dim_x=10, dim_z=7, dt=0.01, points=point, fx=fx, hx=hx) 
+# ukf.F = np.array([[1,0,0,0,0,0,0,1,0,0],      # state transition matrix, dim_x * dim_x
+# 				[0,1,0,0,0,0,0,0,1,0],
+# 				[0,0,1,0,0,0,0,0,0,1],
+# 				[0,0,0,1,0,0,0,0,0,0],  
+# 				[0,0,0,0,1,0,0,0,0,0],
+# 				[0,0,0,0,0,1,0,0,0,0],
+# 				[0,0,0,0,0,0,1,0,0,0],
+# 				[0,0,0,0,0,0,0,1,0,0],
+# 				[0,0,0,0,0,0,0,0,1,0],
+# 				[0,0,0,0,0,0,0,0,0,1]]) 
+# print(ukf.F)
+# print(ukf.H)
+
+
 class KF(Filter):
 	def __init__(self, bbox3D, info, ID):
 		super().__init__(bbox3D, info, ID)
 
-		self.kf = KalmanFilter(dim_x=10, dim_z=7)       
+		# point = MerweScaledSigmaPoints(10, alpha=0.1, beta=2.0, kappa=1.0)
+		# point = MerweScaledSigmaPoints(10, alpha=1e-3, beta=2, kappa=0)   
+		# self.kf = UnscentedKalmanFilter(dim_x=10, dim_z=7, dt=1., points=point, fx=fx, hx=hx) 
+		# self.kf = EKF(dim_x=10, dim_z=7, fx=fx, hx=hx)
+		self.kf = KalmanFilter(dim_x=10, dim_z=7)
+		# self.kf = ExtendedKF(dim_x=10, dim_z=7, fx=fx, hx=hx) 
+
+	
+		# self.kf = UnscentedKalmanFilter(dim_x=10, dim_z=7, dt=0.5, points=point, fx=fx, hx=hx) 
 		# There is no need to use EKF here as the measurement and state are in the same space with linear relationship
 
 		# state x dimension 10: x, y, z, theta, l, w, h, dx, dy, dz

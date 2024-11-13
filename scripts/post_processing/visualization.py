@@ -102,7 +102,7 @@ def vis(args):
 				filtered.append(object_tmp)
 
 			# visualization and save
-			save_path = os.path.join(save_3d_bbox_dir, '%06d.jpg' % (image_index))
+			save_path = os.path.join(save_3d_bbox_dir, '%06d.png' % (image_index))
 			vis_image_with_obj(image_tmp, filtered, [], calib_tmp, hw, save_path=save_path, id_hl=id_hl)
 			print_log('number of objects to plot is %d' % (len(filtered)), log=log, display=False)
 			count += 1

@@ -81,6 +81,7 @@ class KittiConverter:
         self.split = split
         if split in ['train', 'val', 'trainval']: self.nusc_version = 'v1.0-trainval'
         elif split == 'test':                     self.nusc_version = 'v1.0-test'
+        elif split =='mini':                      self.nusc_version = 'v1.0-mini'
         self.result_name = result_name
         self.data_root = data_root
         self.result_root = result_root

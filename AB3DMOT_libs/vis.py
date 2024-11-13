@@ -117,7 +117,9 @@ def vis_image_with_obj(img, obj_res, obj_gt, calib, hw, save_path, h_thres=0, \
 			# get miscellaneous information
 			box_tmp = obj.get_box3D()
 			str_vis = 'ID: %d' % obj.id
-			
+			# #####
+			# str_vis = None
+			# #####
 			# retrieve index in the id_hl dict
 			if id_hl is not None and obj.id in id_hl:
 				err_type = id_hl[obj.id]

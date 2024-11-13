@@ -25,6 +25,7 @@ class Voe_mlp(hk.Module):
         super().__init__(name=name)
         self.hidden_size = args.hidden_size
         self.output_size = args.dim_state * 2
+        # self.output_size = args.dim_state * 2 + args.dim_state * args.dim_obs
         self.mlp_size = [self.hidden_size] * args.rnn_depth + [self.output_size]
     
     def __call__(self, obs_state: jax.Array):
